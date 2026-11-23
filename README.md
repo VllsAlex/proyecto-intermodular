@@ -1,193 +1,359 @@
-# Proyecto intermodular
+# AutoRegistro — documentación técnica
 
-Aplicación web con frontend en **HTML, CSS y JavaScript**, backend en **Node.js y Express** y base de datos **MongoDB** mediante **Mongoose**.
+AutoRegistro es una aplicación web de uso personal para gestionar vehículos, registrar sus mantenimientos y consultar sus gastos. Este documento explica cómo instalarla, configurarla, ejecutarla y comprobar su funcionamiento.
+
+La presentación del proyecto y los espacios para sus enlaces de GitHub y Figma están en [EXPLICACION.md](EXPLICACION.md).
+
+## Índice
+
+- [Tecnologías y arquitectura](#tecnologías-y-arquitectura)
+- [Requisitos](#requisitos)
+- [Instalación y primera ejecución](#instalación-y-primera-ejecución)
+- [Configuración del entorno](#configuración-del-entorno)
+- [Comandos y ejecución diaria](#comandos-y-ejecución-diaria)
+- [Base de datos y persistencia](#base-de-datos-y-persistencia)
+- [Páginas y almacenamiento del navegador](#páginas-y-almacenamiento-del-navegador)
+- [API HTTP](#api-http)
+- [Pruebas automatizadas](#pruebas-automatizadas)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Resolución de problemas](#resolución-de-problemas)
+
+## Tecnologías y arquitectura
+
+| Componente | Tecnología | Función |
+| --- | --- | --- |
+| Frontend | HTML5, CSS3 y JavaScript con módulos nativos | Páginas, formularios, navegación y presentación de datos |
+| Servidor | Node.js 22 o superior | Ejecución del backend y de las pruebas |
+| API y archivos estáticos | Express 5 | Rutas `/api` y entrega del directorio `frontend/` |
+| Modelado de datos | Mongoose 9 | Esquemas, validaciones, referencias y consultas a MongoDB |
+| Configuración | dotenv 16 | Lectura de `backend/.env` |
+| Base de datos | MongoDB 8.0 | Persistencia de vehículos y mantenimientos |
+| Entorno de base de datos | Docker Compose | Servicio MongoDB con volumen persistente |
+| Pruebas | `node:test` y `node:assert/strict` | Validación de modelos, persistencia y API HTTP |
+
+Las dependencias se declaran en `backend/package.json` y sus versiones resueltas están en `backend/package-lock.json`.
+
+```text
+Navegador
+   │ HTTP: páginas, CSS, JavaScript y peticiones /api
+   ▼
+Node.js + Express · puerto 3001 con el .env de ejemplo
+   │ Mongoose
+   ▼
+MongoDB · 127.0.0.1:27018 en el equipo anfitrión
+   │ Docker redirige al puerto 27017 del contenedor
+   ▼
+Volumen mongo_data · /data/db
+```
+
+Express sirve el frontend y la API desde el mismo origen. Las peticiones del navegador utilizan rutas relativas `/api/...`. El frontend funciona directamente con módulos JavaScript y no necesita compilación.
+
+La configuración incluida ejecuta **Node.js en el equipo anfitrión y MongoDB en Docker**. El archivo `compose.yaml` define únicamente el servicio de base de datos.
 
 ## Requisitos
 
-- Node.js 22 o superior.
-- npm, incluido con Node.js.
-- MongoDB 8.0, o Docker con Docker Compose para levantar el servicio incluido.
+- **Git**, para clonar el repositorio.
+- **Node.js 22 o superior** y **npm**.
+- **Docker Engine o Docker Desktop**, con **Docker Compose v2**, para utilizar la base de datos incluida. El motor de Docker debe estar arrancado.
+- Un navegador actualizado con JavaScript habilitado.
 
-## Estructura del proyecto
+También se puede utilizar una instancia de MongoDB 8.0 instalada por separado, configurando su URI en `backend/.env`.
 
-```text
-.
-├── frontend/
-│   ├── index.html                 # Página principal
-│   ├── css/
-│   │   └── styles.css             # Estilos de la aplicación
-│   ├── js/
-│   │   ├── main.js                # Punto de entrada del JavaScript del navegador
-│   │   ├── ui.js                  # Formatos, formularios, mensajes y diálogos
-│   │   ├── maintenance-list.js    # Tabla y tarjetas compartidas
-│   │   ├── home.js                # Resumen del Home
-│   │   ├── vehicles.js            # Garaje y formulario de vehículos
-│   │   ├── history.js             # Historial, filtros y paginación
-│   │   ├── expenses.js            # Resumen y distribución de gastos
-│   │   ├── maintenance-form.js    # Creación y edición de mantenimientos
-│   │   ├── settings.js            # Preferencias del navegador
-│   │   └── services/
-│   │       ├── api.js             # Cliente HTTP y consultas de resumen
-│   │       ├── vehicles.js        # API de vehículos
-│   │       ├── maintenances.js    # API de mantenimientos
-│   │       └── preferences.js     # Preferencias locales
-│   └── assets/
-│       ├── images/                # Imágenes e iconos
-│       └── fonts/                 # Fuentes locales
-├── backend/
-│   ├── .env.example               # Ejemplo de variables de entorno
-│   ├── package.json               # Dependencias y comandos del backend
-│   └── src/
-│       ├── app.js                 # Configuración de Express y archivos estáticos
-│       ├── server.js              # Arranque del servidor
-│       ├── config/                # Configuración de la aplicación
-│       │   ├── env.js             # Lectura de variables de entorno
-│       │   └── database.js        # Conexión a MongoDB e inicialización de índices
-│       ├── routes/                # Definición de rutas de la API
-│       │   └── index.js
-│       ├── controllers/           # Gestión de las peticiones y respuestas
-│       │   ├── health.controller.js
-│       │   ├── vehicles.controller.js
-│       │   ├── maintenances.controller.js
-│       │   └── reports.controller.js
-│       ├── services/              # Lógica de negocio
-│       ├── models/                # Modelos y acceso a datos
-│       │   ├── vehicle.model.js   # Vehículos
-│       │   └── maintenance.model.js # Mantenimientos
-│       └── middlewares/           # Validación, autenticación y otros intermediarios
-├── compose.yaml                   # MongoDB local con volumen persistente
-├── .gitignore
-└── README.md
-```
-
-Los archivos `.gitkeep` permiten guardar en Git las carpetas que todavía están vacías. Puedes eliminarlos cuando añadas contenido a esas carpetas.
-
-## Instalación y ejecución
-
-Para entender por qué se sirve mediante HTTP y comparar Express, Live Server, Python y Node.js, consulta [Cómo servir el frontend en local](frontend/SERVIR_FRONTEND.md).
-
-Ejecuta estos comandos desde la raíz del proyecto:
+Comprueba las herramientas que vayas a utilizar:
 
 ```bash
-npm --prefix backend install
+git --version
+node --version
+npm --version
+docker --version
+docker compose version
+```
+
+Los comandos siguientes se ejecutan desde la **raíz del proyecto**, la carpeta que contiene `backend/`, `frontend/` y `compose.yaml`.
+
+## Instalación y primera ejecución
+
+### 1. Obtener el proyecto
+
+Sustituye `URL_DEL_REPOSITORIO_GITHUB` por el enlace del repositorio:
+
+```bash
+git clone "URL_DEL_REPOSITORIO_GITHUB" autoregistro
+cd autoregistro
+```
+
+Si ya tienes el proyecto descargado, abre una terminal en su carpeta raíz.
+
+### 2. Instalar las dependencias
+
+```bash
+npm --prefix backend ci
+```
+
+`npm ci` instala las versiones del archivo de bloqueo. Las dependencias se instalan en `backend/node_modules/`; el frontend se sirve directamente desde sus archivos.
+
+### 3. Crear el archivo de configuración
+
+En Linux o macOS:
+
+```bash
 cp backend/.env.example backend/.env
+```
+
+En Windows PowerShell:
+
+```powershell
+Copy-Item backend/.env.example backend/.env
+```
+
+Este paso se realiza en la primera instalación. Si ya existe `backend/.env`, revisa su contenido para conservar tu configuración.
+
+El archivo de ejemplo contiene:
+
+```dotenv
+PORT=3001
+MONGODB_URI=mongodb://127.0.0.1:27018/autoregistro
+```
+
+### 4. Arrancar MongoDB
+
+```bash
+docker compose up -d mongo
+docker compose ps
+```
+
+La primera ejecución descarga la imagen `mongodb/mongodb-community-server:8.0-ubi8` y crea el volumen de datos. Espera a que MongoDB esté preparado para aceptar conexiones. Puedes consultar su arranque con:
+
+```bash
+docker compose logs --tail=50 mongo
+```
+
+El servicio publica el puerto `27018` del equipo anfitrión hacia el `27017` del contenedor, limitado a `127.0.0.1`.
+
+Si utilizas una instancia de MongoDB ya disponible, configura `MONGODB_URI` con su dirección y continúa con el arranque del backend.
+
+### 5. Arrancar el backend
+
+```bash
+npm --prefix backend run dev
+```
+
+El servidor conecta a MongoDB e inicializa las colecciones y sus índices antes de aceptar peticiones. Cuando termine, mostrará:
+
+```text
+Servidor disponible en http://localhost:3001
+```
+
+Mantén esta terminal abierta mientras utilizas la aplicación.
+
+### 6. Comprobar el acceso
+
+Abre **http://localhost:3001**. También puedes comprobar la API desde el navegador en **http://localhost:3001/api/health**, o con:
+
+```bash
+curl http://localhost:3001/api/health
+```
+
+En Windows PowerShell puedes utilizar:
+
+```powershell
+Invoke-RestMethod http://localhost:3001/api/health
+```
+
+La respuesta esperada es:
+
+```json
+{
+  "status": "ok",
+  "message": "El servidor está funcionando correctamente."
+}
+```
+
+Esta ruta comprueba que el servidor HTTP responde. La conexión inicial con MongoDB se realiza durante el arranque del backend.
+
+### 7. Crear los primeros datos
+
+1. Entra en **Vehículos** y añade un coche, una moto u otro vehículo con nombre, tipo y matrícula.
+2. Abre **Añadir mantenimiento** y selecciona ese vehículo.
+3. Completa operación, fecha, kilometraje y coste, y guarda el registro.
+4. Comprueba el resultado en **Historial**, **Home** y **Gastos**. En Gastos, selecciona el año del mantenimiento.
+5. En **Ajustes**, puedes elegir el vehículo predeterminado y el orden preferido del historial.
+
+La aplicación comienza con estados vacíos cuando la base de datos no contiene registros. Las colecciones y los índices se crean automáticamente al arrancar; los vehículos y mantenimientos se introducen desde la aplicación.
+
+## Configuración del entorno
+
+| Variable | Función | Valor en `.env.example` | Valor de respaldo del código |
+| --- | --- | --- | --- |
+| `PORT` | Puerto HTTP de Express | `3001` | `3000` |
+| `MONGODB_URI` | URI y nombre de la base de datos | `mongodb://127.0.0.1:27018/autoregistro` | El mismo valor |
+
+Por tanto, al copiar `.env.example` la aplicación utiliza **3001**. El puerto **3000** se usa si `PORT` no está definido o está vacío.
+
+`backend/src/config/env.js` carga `backend/.env` mediante una ruta relativa al propio módulo. Las variables ya definidas en el entorno del proceso tienen prioridad sobre las del archivo. Reinicia el backend después de modificar la configuración.
+
+`backend/.env` está excluido de Git; `.env.example` documenta la configuración que necesita el proyecto.
+
+### Utilizar otro MongoDB
+
+Para una instalación local que escuche en el puerto habitual `27017`, configura:
+
+```dotenv
+MONGODB_URI=mongodb://127.0.0.1:27017/autoregistro
+```
+
+Para otra instancia, utiliza su URI de conexión, incluyendo las credenciales si esa instancia las requiere. El último segmento de la URI determina la base de datos de la aplicación.
+
+### Cambiar los puertos
+
+- **HTTP:** cambia `PORT` en `backend/.env`, reinicia el servidor y abre el nuevo puerto en el navegador.
+- **MongoDB de Docker:** cambia el puerto del anfitrión en `compose.yaml` y actualiza `MONGODB_URI`. Por ejemplo, con `"127.0.0.1:27019:27017"`, la URI será `mongodb://127.0.0.1:27019/autoregistro`. Aplica el cambio con `docker compose up -d mongo`.
+
+El puerto `27017` dentro del contenedor y el puerto publicado en el anfitrión tienen funciones distintas: Node.js utiliza el puerto publicado porque se ejecuta en el anfitrión.
+
+## Comandos y ejecución diaria
+
+| Comando desde la raíz | Uso |
+| --- | --- |
+| `npm --prefix backend ci` | Instalar las dependencias desde el archivo de bloqueo |
+| `docker compose up -d mongo` | Crear o arrancar el servicio MongoDB |
+| `npm --prefix backend run dev` | Arrancar el backend con reinicio automático al cambiar su código |
+| `npm --prefix backend start` | Arrancar el backend sin modo de vigilancia |
+| `docker compose ps` | Consultar el estado del servicio de base de datos |
+| `docker compose logs -f mongo` | Seguir los registros de MongoDB |
+| `npm --prefix backend test` | Ejecutar las pruebas de modelos |
+| `npm --prefix backend run test:integration` | Ejecutar las pruebas de persistencia y API |
+
+Para volver a utilizar una instalación ya configurada:
+
+```bash
 docker compose up -d mongo
 npm --prefix backend run dev
 ```
 
-Abre **http://localhost:3001** en el navegador (el puerto del archivo `.env.example`). Express sirve tanto los archivos del frontend como la API. La página inicial muestra el resumen de mantenimiento de AutoRegistro.
+El modo `dev` reinicia Node.js al modificar los archivos del backend. Para ver cambios del frontend, recarga el navegador. `start` mantiene el servidor en primer plano y utiliza la misma configuración de entorno.
 
-Docker publica MongoDB en `127.0.0.1:27018` y conserva los datos en el volumen `mongo_data`. Si ya tienes MongoDB disponible, configura su URI en `.env` y utiliza esa instancia. El backend espera a conectar y crear las colecciones e índices antes de escuchar peticiones. Si la conexión falla, termina con un código de error. Al recibir `SIGINT` o `SIGTERM`, cierra el servidor HTTP y la conexión a MongoDB.
+### Detener los servicios
 
-El comando `dev` reinicia el servidor al modificar los archivos del backend. Para ver cambios en HTML, CSS o JavaScript del frontend, recarga el navegador.
-
-Para arrancar el servidor sin reinicio automático:
+1. Pulsa **Ctrl+C** en la terminal del backend. El servidor cierra HTTP y desconecta Mongoose; también gestiona la señal `SIGTERM`.
+2. Detén MongoDB con:
 
 ```bash
-npm --prefix backend start
+docker compose stop mongo
 ```
 
-## Variables de entorno
+También puedes utilizar `docker compose down` para retirar los contenedores y la red de Compose. Los datos permanecen en el volumen nombrado y estarán disponibles al volver a arrancar el mismo proyecto.
 
-Configura las variables en `backend/.env`:
+## Base de datos y persistencia
 
-| Variable | Descripción | Valor predeterminado |
-| --- | --- | --- |
-| `PORT` | Puerto en el que escucha el servidor | `3000` |
-| `MONGODB_URI` | URI de conexión a MongoDB | `mongodb://127.0.0.1:27018/autoregistro` |
+La base predeterminada es `autoregistro`. La relación entre sus colecciones es **un vehículo → muchos mantenimientos**.
 
-El archivo `.env` está excluido de Git. Usa `.env.example` para documentar nuevas variables sin incluir credenciales reales.
-
-## Esquema de MongoDB
-
-La base de datos `autoregistro` está pensada para uso personal. La relación es **un vehículo → muchos mantenimientos**. Los gastos se obtienen sumando el coste de los mantenimientos.
-
-### `Vehicle` — colección `vehicles`
+### Colección `vehicles` — modelo `Vehicle`
 
 | Campo | Tipo | Reglas |
 | --- | --- | --- |
 | `_id` | ObjectId | Generado automáticamente |
-| `name` | String | Obligatorio, sin espacios en los extremos; máximo 120 caracteres |
-| `type` | String | Obligatorio, sin espacios en los extremos; máximo 40 caracteres; por ejemplo, `Coche` o `Moto` |
-| `plate` | String | Obligatoria y única; máximo 20 caracteres; se guarda en mayúsculas y sin espacios |
+| `name` | String | Obligatorio; se recortan espacios en los extremos; máximo 120 caracteres |
+| `type` | String | Obligatorio; se recortan espacios en los extremos; máximo 40 caracteres |
+| `plate` | String | Obligatoria y única; mayúsculas, sin espacios; máximo 20 caracteres |
 | `createdAt`, `updatedAt` | Date | Gestionados automáticamente por Mongoose |
 
-El índice único de `plate` impide registrar dos veces la misma matrícula normalizada. MongoDB devuelve el error `11000` al duplicarla.
+Tiene un índice único `{ plate: 1 }`. Una matrícula como `1234 klm` se guarda como `1234KLM`.
 
-### `Maintenance` — colección `maintenances`
+### Colección `maintenances` — modelo `Maintenance`
 
 | Campo | Tipo | Reglas |
 | --- | --- | --- |
 | `_id` | ObjectId | Generado automáticamente |
-| `vehicle` | ObjectId | Obligatorio; referencia al modelo `Vehicle` |
-| `operation` | String | Obligatoria, sin espacios en los extremos; máximo 200 caracteres |
-| `date` | Date | Fecha obligatoria del mantenimiento |
-| `mileage` | Number | Obligatorio; entero no negativo dentro del rango seguro de JavaScript |
-| `costInCents` | Number | Obligatorio; entero no negativo dentro del rango seguro de JavaScript |
+| `vehicle` | ObjectId | Obligatorio; referencia a `Vehicle` |
+| `operation` | String | Obligatoria; se recortan espacios en los extremos; máximo 200 caracteres |
+| `date` | Date | Obligatoria; la API recibe una fecha real en formato `YYYY-MM-DD` |
+| `mileage` | Number | Entero obligatorio entre 0 y `Number.MAX_SAFE_INTEGER` |
+| `costInCents` | Number | Entero obligatorio entre 0 y `Number.MAX_SAFE_INTEGER` |
 | `createdAt`, `updatedAt` | Date | Gestionados automáticamente por Mongoose |
 
-Índices: `{ date: -1 }` para el historial global y `{ vehicle: 1, date: -1 }` para el historial de un vehículo.
+Índices: `{ date: -1 }` para consultas globales y `{ vehicle: 1, date: -1 }` para el historial de un vehículo.
 
-Los importes se almacenan en céntimos: `12050` representa **120,50 €**. Para una fecha de calendario se utiliza medianoche UTC: `2026-11-15T00:00:00.000Z`.
+Los importes se almacenan en **céntimos**: `12050` representa **120,50 €**. Las fechas de calendario se almacenan a medianoche UTC, por ejemplo `2026-11-15T00:00:00.000Z`.
 
-Ejemplo de uso desde el backend, después de conectar a MongoDB:
+La API verifica la existencia del vehículo al guardar un mantenimiento. Para eliminar un vehículo con historial, primero deben eliminarse sus mantenimientos. Las ediciones utilizan `save`, con validación de Mongoose. Los resúmenes se calculan sobre los registros guardados en MongoDB.
 
-```js
-import { Vehicle } from './models/vehicle.model.js';
-import { Maintenance } from './models/maintenance.model.js';
+### Volumen y acceso directo
 
-const vehicle = await Vehicle.create({
-  name: 'SEAT León', type: 'Coche', plate: '1234 KLM',
-});
+Compose monta el volumen `mongo_data` en `/data/db`; su nombre efectivo puede incorporar el prefijo del proyecto de Compose. Los datos persisten entre paradas y recreaciones del contenedor mientras se conserve ese volumen.
 
-await Maintenance.create({
-  vehicle: vehicle._id,
-  operation: 'Cambio de aceite',
-  date: '2026-11-15',
-  mileage: 84500,
-  costInCents: 12050,
-});
+Desde MongoDB Compass, o desde un cliente instalado en el anfitrión, utiliza:
 
-const history = await Maintenance.find({ vehicle: vehicle._id })
-  .sort({ date: -1 })
-  .populate('vehicle');
+```text
+mongodb://127.0.0.1:27018/autoregistro
 ```
 
-La referencia permite usar `populate('vehicle')`. La API comprueba que el vehículo exista antes de registrar un mantenimiento y devuelve un conflicto al eliminar un vehículo con registros asociados. Primero deben eliminarse sus mantenimientos desde el historial. Las ediciones utilizan `save`, que ejecuta las validaciones de Mongoose.
-
-### Pruebas
+Si tienes `mongosh` instalado, puedes acceder con:
 
 ```bash
-npm --prefix backend test
-npm --prefix backend run test:integration
+mongosh "mongodb://127.0.0.1:27018/autoregistro"
 ```
 
-Las pruebas de modelos funcionan sin MongoDB. Las de integración necesitan MongoDB en `127.0.0.1:27018`; puedes indicar otra instancia con `TEST_MONGODB_URI`. Crean bases temporales `autoregistro_test_<identificador>` y las eliminan al terminar. Comprueban persistencia, relación entre modelos, matrícula única, índices y la API HTTP: validaciones, filtros, paginación, informes, actualización y eliminación.
+## Páginas y almacenamiento del navegador
 
-## API
-
-Todas las rutas utilizan el prefijo `/api` y responden con JSON, salvo las eliminaciones correctas, que devuelven `204` sin cuerpo.
-
-| Método | Ruta | Descripción |
+| Página | Ruta | Funciones |
 | --- | --- | --- |
-| GET | `/health` | Estado del servidor |
-| GET | `/vehicles` | Vehículos con número de mantenimientos, gasto total, última fecha y kilometraje máximo registrado |
-| POST | `/vehicles` | Crear vehículo |
+| Home | `/` | Totales, último mantenimiento y los tres registros más recientes |
+| Vehículos | `/vehiculos.html` | Alta, edición, eliminación y resumen por vehículo |
+| Historial | `/historial.html` | Búsqueda, filtros, ordenación, paginación, edición y eliminación |
+| Gastos | `/gastos.html` | Filtros por año y vehículo, totales, coste medio y distribución mensual y por vehículo |
+| Formulario | `/anadir-mantenimiento.html` | Crear un mantenimiento o editarlo mediante `?id=…` |
+| Ajustes | `/ajustes.html` | Vehículo predeterminado, orden del historial y restablecimiento de preferencias |
+
+Parámetros de navegación:
+
+- `/vehiculos.html?new=1` abre el formulario de alta.
+- `/historial.html?vehicle=…` filtra el historial de un vehículo; los filtros y la página quedan reflejados en la URL.
+- `/anadir-mantenimiento.html?vehicle=…` preselecciona un vehículo.
+- `/anadir-mantenimiento.html?id=…` carga el mantenimiento que se va a editar.
+
+Los vehículos y mantenimientos se guardan en MongoDB. Las preferencias se almacenan en `localStorage` con la clave `autoregistro.preferences`, y los mensajes de confirmación entre páginas utilizan `sessionStorage` con la clave `autoregistro.flash`.
+
+Las preferencias pertenecen al navegador y al origen: cambiar entre `localhost` y `127.0.0.1`, o cambiar el puerto HTTP, crea un contexto de almacenamiento distinto. El vehículo indicado en un enlace tiene prioridad sobre el predeterminado. Si este último ya no existe, la selección queda vacía. Restablecer preferencias guarda los valores iniciales: sin vehículo y orden de más recientes primero.
+
+La interfaz utiliza formatos españoles para fechas, euros y kilómetros. Los formularios aceptan coma o punto decimal en el coste y hasta dos decimales. El historial muestra tabla en escritorio y tarjetas por debajo de 768 px.
+
+## API HTTP
+
+La URL base con la configuración de ejemplo es `http://localhost:3001/api`. Las peticiones con cuerpo utilizan `Content-Type: application/json`. Las respuestas son JSON, salvo las eliminaciones correctas, que devuelven `204` sin cuerpo.
+
+| Método | Ruta relativa a `/api` | Descripción |
+| --- | --- | --- |
+| GET | `/health` | Estado del servidor HTTP |
+| GET | `/vehicles` | Vehículos y sus estadísticas, dentro de `{ items }` |
+| POST | `/vehicles` | Crear vehículo; devuelve `201` |
 | PUT | `/vehicles/:id` | Editar vehículo |
-| DELETE | `/vehicles/:id` | Eliminar un vehículo sin mantenimientos asociados |
+| DELETE | `/vehicles/:id` | Eliminar vehículo sin mantenimientos asociados |
 | GET | `/maintenances` | Historial filtrado y paginado |
-| GET | `/maintenances/:id` | Consultar un mantenimiento para editarlo |
-| POST | `/maintenances` | Crear mantenimiento |
+| GET | `/maintenances/:id` | Obtener un mantenimiento |
+| POST | `/maintenances` | Crear mantenimiento; devuelve `201` |
 | PUT | `/maintenances/:id` | Editar mantenimiento |
 | DELETE | `/maintenances/:id` | Eliminar mantenimiento |
 | GET | `/summary` | Totales globales y tres mantenimientos recientes |
 | GET | `/expenses` | Gastos mensuales y por vehículo de un año |
 
-### Crear y editar datos
+### Crear y editar vehículos
 
-`POST` y `PUT /vehicles` reciben `name`, `type` y `plate`. En `PUT`, incluye el identificador en la ruta y envía todos los campos.
+`POST /api/vehicles` y `PUT /api/vehicles/:id` reciben todos estos campos:
 
-`POST` y `PUT /maintenances` reciben:
+```json
+{
+  "name": "SEAT León",
+  "type": "Coche",
+  "plate": "1234 KLM"
+}
+```
+
+La respuesta contiene `id`, `name`, `type` y `plate`. La consulta del listado añade `maintenanceCount`, `totalCostInCents`, `latestDate` y `mileage`; este último es el kilometraje máximo registrado.
+
+### Crear y editar mantenimientos
+
+`POST /api/maintenances` y `PUT /api/maintenances/:id` reciben:
 
 ```json
 {
@@ -199,68 +365,19 @@ Todas las rutas utilizan el prefijo `/api` y responden con JSON, salvo las elimi
 }
 ```
 
-El identificador debe corresponder a un vehículo existente. El coste y el kilometraje deben ser números enteros no negativos; las fechas se validan como días reales de calendario.
+Sustituye el identificador del ejemplo por el `id` de un vehículo real. Las actualizaciones `PUT` reciben el conjunto completo de campos.
 
-### Consultas del historial y gastos
-
-`GET /maintenances` admite:
-
-- `vehicle`: identificador de vehículo.
-- `search`: búsqueda literal por operación, sin distinguir mayúsculas.
-- `from`, `to`: fechas inclusivas en formato `YYYY-MM-DD`.
-- `sort`: `recent` (predeterminado), `oldest`, `cost-desc` o `cost-asc`.
-- `page`: página, comenzando en 1.
-- `pageSize`: registros por página; 10 por defecto y 100 como máximo.
-
-Devuelve `{ items, pagination: { page, pageSize, total, pages }, totalCostInCents }`. El total de coste incluye todos los registros filtrados, no solo los de la página visible. Cada mantenimiento contiene su vehículo relacionado. Editar un vehículo actualiza su identificación en todo el historial.
-
-`GET /expenses?year=2026&vehicle=…` admite un año y un vehículo opcional. Por defecto utiliza el año actual y todos los vehículos. Devuelve los doce meses, gastos por vehículo, totales y los años que tienen registros.
-
-### Errores
-
-Los errores tienen la forma `{ message, fields }`; `fields` identifica los campos que deben corregirse cuando procede. Los códigos principales son `400` para datos inválidos, `404` para recursos inexistentes y `409` para matrículas duplicadas o vehículos con mantenimientos asociados.
-
-### `GET /api/health`
-
-Comprueba que el servidor responde. Devuelve una respuesta JSON:
-
-```json
-{
-  "status": "ok",
-  "message": "El servidor está funcionando correctamente."
-}
-```
-
-## Cómo ampliar el proyecto
-
-- **Frontend:** añade las páginas HTML en `frontend/`, sus estilos en `frontend/css/` y su JavaScript en `frontend/js/`. Centraliza las peticiones HTTP en `frontend/js/services/`.
-- **Rutas:** define los endpoints en `backend/src/routes/` y conéctalos al router de `index.js`. Todas las rutas de este router utilizan el prefijo `/api`.
-- **Controladores:** gestiona los datos de entrada y las respuestas HTTP en `backend/src/controllers/`.
-- **Servicios:** coloca la lógica de negocio en `backend/src/services/`.
-- **Modelos:** utiliza y amplía los modelos de `backend/src/models/` para acceder a MongoDB.
-- **Middlewares:** añade funciones compartidas de validación, autenticación o tratamiento de errores en `backend/src/middlewares/`.
-
-El frontend utiliza módulos nativos de JavaScript y no requiere un proceso de compilación.
-
-## Frontend de AutoRegistro
-
-- **Home:** `/`. Totales, último mantenimiento y los tres registros más recientes, con edición y eliminación.
-- **Vehículos:** `/vehiculos.html`. Alta, edición, eliminación y resumen de cada vehículo. El enlace `?new=1` abre el formulario de alta.
-- **Historial:** `/historial.html`. Búsqueda, filtros por vehículo y fechas, cuatro órdenes y paginación de diez registros. `?vehicle=…` abre el historial de un vehículo. Los filtros y la página quedan reflejados en la URL.
-- **Gastos:** `/gastos.html`. Filtros por año y vehículo, gasto total, número de mantenimientos, coste medio, barras mensuales y distribución por vehículo.
-- **Formulario:** `/anadir-mantenimiento.html`. Alta de mantenimiento; `?id=…` permite editar y `?vehicle=…` preselecciona un vehículo. Los importes admiten coma o punto decimal y un máximo de dos decimales.
-- **Ajustes:** `/ajustes.html`. Vehículo predeterminado, orden del historial y restablecimiento de preferencias.
-- La guía visual está en `frontend/GUIA_ESTILOS.md`; Inter se sirve localmente desde `frontend/assets/fonts/`, con su licencia incluida.
-- La navegación y el footer se generan en `frontend/js/layout.js`. El Home se gestiona en `frontend/js/home.js`.
-
-Todas las páginas consultan la misma API y los vehículos y mantenimientos se guardan en MongoDB. La aplicación comienza con estados vacíos cuando no hay datos. Se muestran mensajes de carga, errores y confirmaciones; los formularios validan los campos y los diálogos permiten cancelar con Escape.
-
-El formato de un mantenimiento devuelto por la API es:
+El mantenimiento devuelto por la API tiene esta forma:
 
 ```json
 {
   "id": "507f191e810c19729de860ea",
-  "vehicle": { "id": "507f1f77bcf86cd799439011", "name": "SEAT León", "type": "Coche", "plate": "1234KLM" },
+  "vehicle": {
+    "id": "507f1f77bcf86cd799439011",
+    "name": "SEAT León",
+    "type": "Coche",
+    "plate": "1234KLM"
+  },
   "operation": "Cambio de aceite",
   "date": "2026-11-15",
   "mileage": 84500,
@@ -269,8 +386,145 @@ El formato de un mantenimiento devuelto por la API es:
 }
 ```
 
-Las fechas de la API utilizan `YYYY-MM-DD` y se muestran en español. Los cálculos utilizan `costInCents`; `cost` es su equivalente en euros. Los resúmenes del Home y Gastos se calculan en el backend sobre el historial completo.
+`cost` es el equivalente en euros de `costInCents`. El vehículo relacionado se carga mediante `populate`; al editar su nombre o matrícula se refleja el cambio en su historial.
 
-Las preferencias utilizan la clave `autoregistro.preferences` de `localStorage`. El vehículo predeterminado se aplica al formulario, al historial y a los gastos, y el orden preferido se aplica al historial. Los enlaces a un vehículo concreto tienen prioridad sobre las preferencias; si el vehículo predeterminado ya no existe, la selección queda vacía. `Restablecer` guarda los valores iniciales: sin vehículo y orden de más recientes primero.
+### Consultas del historial
 
-El historial utiliza tabla en escritorio y tarjetas por debajo de 768 px. Los formularios y filtros pasan a una columna en móvil; la navegación se recoge en un menú accesible. Se reutilizan las mismas tarjetas, acciones, formatos y diálogos en el Home y el Historial.
+`GET /api/maintenances` admite:
+
+| Parámetro | Uso |
+| --- | --- |
+| `vehicle` | Identificador del vehículo |
+| `search` | Búsqueda literal por operación, sin distinguir mayúsculas |
+| `from`, `to` | Fechas inclusivas en formato `YYYY-MM-DD` |
+| `sort` | `recent` por defecto, `oldest`, `cost-desc` o `cost-asc` |
+| `page` | Página a partir de 1; por defecto, 1 |
+| `pageSize` | Registros por página; por defecto, 10; máximo, 100 |
+
+Ejemplo:
+
+```text
+http://localhost:3001/api/maintenances?search=aceite&from=2026-01-01&to=2026-12-31&sort=recent&page=1&pageSize=10
+```
+
+Devuelve `{ items, pagination: { page, pageSize, total, pages }, totalCostInCents }`. El coste total incluye todos los resultados filtrados, no solo los de la página visible.
+
+### Resumen y gastos
+
+- `GET /api/summary` devuelve `totalVehicles`, `vehicleCount` —vehículos con mantenimientos—, `maintenanceCount`, `totalCostInCents` y `recent`.
+- `GET /api/expenses?year=2026&vehicle=…` acepta un año entre 1000 y 9998 y un vehículo opcional. Por defecto utiliza el año actual y todos los vehículos. Devuelve `years`, `monthly`, `vehicles`, `totalCostInCents` y `maintenanceCount`. El desglose mensual contiene los doce meses, incluidos los que tienen gasto cero.
+
+### Errores
+
+Los errores incluyen `message` y, cuando corresponde, `fields` con los campos que necesitan corrección.
+
+| Código | Significado |
+| --- | --- |
+| `400` | Datos, fechas, identificadores o parámetros inválidos |
+| `404` | Recurso o ruta de API inexistente |
+| `409` | Matrícula duplicada o eliminación de un vehículo con mantenimientos |
+| `500` | Error interno al completar la operación |
+
+## Pruebas automatizadas
+
+### Modelos
+
+```bash
+npm --prefix backend test
+```
+
+Comprueban campos obligatorios, normalización de matrículas y validación de kilometraje y costes. Se ejecutan sin conexión a MongoDB.
+
+### Persistencia y API
+
+Con MongoDB arrancado:
+
+```bash
+npm --prefix backend run test:integration
+```
+
+Las pruebas usan por defecto `mongodb://127.0.0.1:27018`. Comprueban persistencia, referencias, índices, conflictos, validaciones HTTP, filtros, paginación, informes, actualizaciones y eliminaciones. Levantan su propio servidor HTTP en un puerto libre.
+
+Para utilizar otra instancia desde Linux o macOS:
+
+```bash
+TEST_MONGODB_URI="mongodb://127.0.0.1:27017" npm --prefix backend run test:integration
+```
+
+En Windows PowerShell:
+
+```powershell
+$env:TEST_MONGODB_URI = "mongodb://127.0.0.1:27017"
+npm --prefix backend run test:integration
+Remove-Item Env:TEST_MONGODB_URI
+```
+
+`TEST_MONGODB_URI` es una variable específica de las pruebas y su valor predeterminado es independiente de `MONGODB_URI`. Cada prueba de integración crea una base `autoregistro_test_<identificador>` y la elimina al terminar; la conexión de pruebas debe permitir crear y eliminar esas bases.
+
+## Estructura del proyecto
+
+```text
+.
+├── frontend/
+│   ├── index.html                  # Home
+│   ├── vehiculos.html              # Gestión de vehículos
+│   ├── historial.html              # Historial y filtros
+│   ├── gastos.html                 # Resumen de gastos
+│   ├── anadir-mantenimiento.html   # Alta y edición de mantenimientos
+│   ├── ajustes.html                # Preferencias
+│   ├── css/styles.css              # Estilos compartidos y adaptación móvil
+│   ├── js/
+│   │   ├── main.js                 # Inicialización según la página
+│   │   ├── layout.js               # Navegación y pie compartidos
+│   │   ├── icons.js                # Iconos SVG
+│   │   ├── ui.js                   # Formatos, validación, mensajes y diálogos
+│   │   ├── maintenance-list.js     # Tabla y tarjetas reutilizables
+│   │   ├── home.js                 # Lógica del Home
+│   │   ├── vehicles.js             # Lógica de Vehículos
+│   │   ├── history.js              # Lógica del Historial
+│   │   ├── expenses.js             # Lógica de Gastos
+│   │   ├── maintenance-form.js     # Formulario de mantenimiento
+│   │   ├── settings.js             # Lógica de Ajustes
+│   │   └── services/               # Cliente HTTP, API y preferencias
+│   └── assets/                     # Recursos y fuente Inter local
+├── backend/
+│   ├── .env.example                # Plantilla de configuración
+│   ├── package.json                # Dependencias y scripts
+│   ├── package-lock.json           # Versiones resueltas
+│   ├── src/
+│   │   ├── app.js                  # Express, JSON, API y archivos estáticos
+│   │   ├── server.js               # Arranque y cierre del servidor
+│   │   ├── config/                 # Variables y conexión a MongoDB
+│   │   ├── routes/                 # Rutas de la API
+│   │   ├── controllers/            # Peticiones y respuestas HTTP
+│   │   ├── services/               # Validación, lógica, consultas e informes
+│   │   ├── models/                 # Vehicle y Maintenance
+│   │   └── middlewares/            # Tratamiento de errores
+│   └── test/                       # Modelos, persistencia y API
+├── compose.yaml                    # Servicio MongoDB y volumen
+├── .gitignore
+├── README.md                       # Instalación y documentación técnica
+└── EXPLICACION.md                  # Idea, funcionalidades y recursos del proyecto
+```
+
+## Resolución de problemas
+
+| Problema | Comprobación o solución |
+| --- | --- |
+| `node` o `npm` no se reconoce | Instala Node.js 22 o superior y abre una terminal nueva. Comprueba `node --version` y `npm --version`. |
+| `npm` no encuentra `package.json` | Ejecuta los comandos desde la raíz utilizando `--prefix backend`. |
+| Faltan módulos al iniciar | Ejecuta `npm --prefix backend ci`. |
+| `docker compose` no está disponible o no conecta al motor | Comprueba la instalación de Compose v2 y que Docker Engine o Docker Desktop esté arrancado. |
+| Docker indica que `27018` está ocupado | Comprueba si ya hay una instancia MongoDB en ese puerto. Utilízala mediante `MONGODB_URI`, o cambia de forma coherente el puerto publicado y la URI. |
+| El backend muestra un error de conexión a MongoDB | Revisa `docker compose ps`, `docker compose logs --tail=50 mongo` y `MONGODB_URI`. La URI debe incluir anfitrión, puerto y base de datos. El tiempo de selección de servidor es de 5 segundos; si MongoDB aún se está iniciando, espera y vuelve a arrancar el backend. |
+| `EADDRINUSE` al iniciar Node.js | El puerto HTTP está ocupado. Detén el proceso que lo utiliza o cambia `PORT` y reinicia. |
+| La aplicación no responde en `3001` | Consulta la dirección que imprime Node.js y revisa `PORT`. Sin esa variable, el respaldo es `3000`. |
+| Al abrir el HTML faltan navegación, estilos o datos | Entra por la URL de Express, por ejemplo `http://localhost:3001`. Los módulos, las rutas absolutas y la API requieren servir el proyecto por HTTP. |
+| La interfaz abre desde otro servidor pero falla `/api` | Usa el servidor Express del proyecto: las peticiones actuales esperan frontend y API en el mismo origen. |
+| Gastos muestra cero aunque hay mantenimientos | Revisa el año y el vehículo seleccionados; el año inicial es el actual y puede aplicarse un vehículo predeterminado. |
+| Una matrícula aparece como duplicada | Las matrículas se normalizan a mayúsculas y sin espacios. Comprueba el vehículo ya registrado. |
+| No se puede eliminar un vehículo | Elimina primero sus mantenimientos desde Historial. |
+| Las preferencias cambian al usar otro navegador o puerto | Se guardan en el almacenamiento local de cada navegador y origen. Configúralas de nuevo en Ajustes. |
+| Fallan las pruebas de integración | Comprueba que MongoDB esté disponible en el puerto de pruebas o define `TEST_MONGODB_URI`; el servidor de la aplicación puede estar detenido. |
+
+Para volver a comprobar el servidor tras corregir la configuración, arranca el backend y consulta `/api/health` en el puerto indicado por la terminal.
