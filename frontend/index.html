@@ -3,15 +3,86 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Proyecto intermodular</title>
+    <meta name="description" content="Consulta el mantenimiento de tus vehículos, tus últimas revisiones y el gasto total con AutoRegistro." />
+    <title>Home · AutoRegistro</title>
     <link rel="stylesheet" href="/css/styles.css" />
     <script type="module" src="/js/main.js"></script>
   </head>
-  <body>
-    <main class="container">
-      <h1>Proyecto intermodular</h1>
-      <p>Frontend con HTML, CSS y JavaScript. Backend con Node.js y Express.</p>
-      <p id="server-status" role="status">Comprobando la conexión con el servidor…</p>
+  <body data-page="home">
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <div id="site-header"></div>
+    <main id="contenido" class="container home" tabindex="-1">
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">TU MANTENIMIENTO, BAJO CONTROL</p>
+          <h1>Todo a punto, en un solo lugar.</h1>
+          <p class="page-description">Un vistazo al cuidado de tus vehículos y a tus últimos mantenimientos.</p>
+        </div>
+        <a class="button button-primary" href="/anadir-mantenimiento.html"><span data-icon="plus"></span>Añadir mantenimiento</a>
+      </header>
+
+      <p id="home-message" class="message" role="status" hidden></p>
+
+      <section class="stats-grid" aria-label="Resumen de mantenimientos">
+        <article class="panel stat-card">
+          <div class="stat-heading"><h2>Vehículos con mantenimiento</h2><span class="icon-tile" data-icon="car"></span></div>
+          <p class="stat-value" id="vehicle-count">0</p>
+          <p class="stat-description">Vehículos distintos con registros</p>
+        </article>
+        <article class="panel stat-card">
+          <div class="stat-heading"><h2>Mantenimientos realizados</h2><span class="icon-tile" data-icon="tool"></span></div>
+          <p class="stat-value" id="maintenance-count">0</p>
+          <p class="stat-description">El cuidado de tus vehículos, al día</p>
+        </article>
+        <article class="panel stat-card">
+          <div class="stat-heading"><h2>Gasto total</h2><span class="icon-tile" data-icon="wallet"></span></div>
+          <p class="stat-value" id="total-cost">0,00 €</p>
+          <p class="stat-description">Invertido en todos tus mantenimientos</p>
+        </article>
+      </section>
+
+      <section class="panel latest-panel" aria-labelledby="latest-heading">
+        <div class="panel-heading"><h2 id="latest-heading">Último mantenimiento</h2><span class="section-note">Tu registro más reciente</span></div>
+        <div id="latest-maintenance" class="latest-content">
+          <span class="empty-icon" data-icon="tool"></span>
+          <div><h3>Aún no has registrado mantenimientos</h3><p>Cuando añadas el primero, podrás consultar aquí sus detalles.</p></div>
+          <a class="text-link latest-link" href="/anadir-mantenimiento.html">Añadir el primero <span data-icon="arrow"></span></a>
+        </div>
+      </section>
+
+      <section class="panel recent-panel" aria-labelledby="recent-heading">
+        <div class="panel-heading"><div><h2 id="recent-heading">Últimos mantenimientos</h2><p class="section-description">Los últimos tres registros de tu historial.</p></div><a class="text-link" href="/historial.html">Ver historial <span data-icon="arrow"></span></a></div>
+        <div id="recent-empty" class="empty-state">
+          <span class="empty-icon" data-icon="history"></span>
+          <h3>Tu historial empieza aquí</h3>
+          <p>Registra un mantenimiento para llevar el control de las operaciones,<br class="desktop-break" /> los kilómetros y los gastos de tus vehículos.</p>
+          <a class="button button-secondary" href="/anadir-mantenimiento.html"><span data-icon="plus"></span>Añadir mantenimiento</a>
+        </div>
+        <div id="recent-records" hidden>
+          <div class="table-wrapper">
+            <table>
+              <caption class="visually-hidden">Los tres mantenimientos más recientes</caption>
+              <thead><tr><th scope="col">Vehículo</th><th scope="col">Operación</th><th scope="col">Fecha</th><th scope="col">Kilometraje</th><th scope="col" class="numeric">Coste</th><th scope="col">Acciones</th></tr></thead>
+              <tbody id="maintenance-rows"></tbody>
+            </table>
+          </div>
+          <div id="maintenance-cards" class="maintenance-cards"></div>
+          <div class="table-summary"><span id="recent-count"></span><span>Ordenados del más reciente al más antiguo</span></div>
+        </div>
+      </section>
+      <p class="home-note"><span data-icon="shield"></span>Un buen registro hoy, menos imprevistos mañana.</p>
     </main>
+    <div id="site-footer"></div>
+    <dialog id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
+      <form method="dialog" id="delete-form">
+        <span class="empty-icon danger-icon" data-icon="trash"></span>
+        <h2 id="delete-title">¿Eliminar mantenimiento?</h2>
+        <p id="delete-description">Se eliminará este registro del historial. Esta acción no se puede deshacer.</p>
+        <div id="delete-summary" class="delete-summary"></div>
+        <p id="delete-error" class="message message-error" role="alert" hidden></p>
+        <div class="dialog-actions"><button class="button button-secondary" value="cancel" autofocus>Cancelar</button><button class="button button-danger" id="confirm-delete" type="button">Eliminar</button></div>
+      </form>
+    </dialog>
+    <noscript><p class="container message message-error">Activa JavaScript para mostrar la navegación y consultar tus mantenimientos.</p></noscript>
   </body>
 </html>

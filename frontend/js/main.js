@@ -1,15 +1,8 @@
-import { getServerStatus } from './services/api.js';
+import { renderLayout } from './layout.js';
 
-const statusElement = document.querySelector('#server-status');
+renderLayout();
 
-async function showServerStatus() {
-  try {
-    const data = await getServerStatus();
-    statusElement.textContent = data.message;
-  } catch (error) {
-    statusElement.textContent = 'No se ha podido conectar con el servidor.';
-    console.error(error);
-  }
+if (document.body.dataset.page === 'home') {
+  const { initHome } = await import('./home.js');
+  initHome();
 }
-
-showServerStatus();

@@ -6,3 +6,5 @@ coverage/
 dist/
 *.log
 .DS_Store
+GUIA_ESTILOS.md
+SERVIR_FRONTEND.md
