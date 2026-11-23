@@ -10,4 +10,5 @@ dotenv.config({ path: fileURLToPath(new URL('../../.env', import.meta.url)) });
 
 export const config = {
   port: process.env.PORT || 3000,
+  mongodbUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27018/autoregistro',
 };
