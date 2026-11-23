@@ -91,8 +91,9 @@ El proyecto incluye pruebas automatizadas de los modelos, de la persistencia y d
 
 | Recurso | Enlace | Contenido |
 | --- | --- | --- |
-| Repositorio de GitHub | URL_DEL_REPOSITORIO_GITHUB | Código fuente, configuración, pruebas y documentación del proyecto |
-| Diseño en Figma | URL_DEL_DISENO_FIGMA | Recurso de diseño de la interfaz de AutoRegistro |
+| Repositorio de GitHub | https://github.com/VllsAlex/proyecto-intermodular | Código fuente, configuración, pruebas y documentación del proyecto |
+| Diseño en Figma | 
+https://www.figma.com/design/MfDvVfIp4tEJa7X5ESzJiT/Sin-t%C3%ADtulo?node-id=0-1&t=0HMHAeYzhOTUq1Ra-1 | Recurso de diseño de la interfaz de AutoRegistro |
 | Documentación técnica | [README.md](README.md) | Requisitos, instalación, ejecución, base de datos, API y pruebas |
 
 Dentro del repositorio, el trabajo está organizado en:
