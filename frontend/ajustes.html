@@ -10,7 +10,22 @@
   <body data-page="ajustes">
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <div id="site-header"></div>
-    <main id="contenido" class="container page-shell" aria-label="Ajustes" tabindex="-1"></main>
+    <main id="contenido" class="container page" tabindex="-1">
+      <header class="page-heading"><div><p class="eyebrow">A TU MANERA</p><h1>Ajustes</h1><p class="page-description">Pequeñas preferencias para un registro más cómodo.</p></div></header>
+      <p id="page-message" class="message" role="status" hidden></p>
+      <div class="form-layout">
+        <section class="panel" aria-labelledby="preferences-title"><div class="panel-heading"><div><h2 id="preferences-title">Tus preferencias</h2><p class="section-description">Se aplican a este navegador.</p></div><span class="icon-tile" data-icon="settings"></span></div>
+          <form id="preferences-form" class="form-body">
+            <fieldset class="form-grid" id="preferences-fields" disabled><legend class="visually-hidden">Preferencias de uso</legend>
+              <div class="field field-full"><label for="default-vehicle">Vehículo predeterminado</label><select id="default-vehicle" name="vehicle" aria-describedby="default-vehicle-help"><option value="">Sin vehículo predeterminado</option></select><p id="default-vehicle-help" class="field-help">Se seleccionará al añadir un mantenimiento y al abrir el historial o los gastos.</p></div>
+              <div class="field field-full"><label for="default-sort">Orden del historial</label><select id="default-sort" name="sort" aria-describedby="default-sort-help"><option value="recent">Más recientes primero</option><option value="oldest">Más antiguos primero</option><option value="cost-desc">Mayor coste primero</option><option value="cost-asc">Menor coste primero</option></select><p id="default-sort-help" class="field-help">Podrás cambiarlo en cualquier momento desde los filtros del historial.</p></div>
+            </fieldset>
+            <div class="form-actions"><button id="reset-preferences" class="button button-secondary" type="button" disabled>Restablecer</button><button id="save-preferences" class="button button-primary" type="submit" disabled>Guardar preferencias</button></div>
+          </form>
+        </section>
+        <aside class="panel form-aside"><span class="empty-icon" data-icon="info"></span><h2>Un formato familiar</h2><p>AutoRegistro utiliza estos formatos para mantener tus registros claros y consistentes.</p><dl class="format-list"><div><dt>Idioma</dt><dd>Español de España</dd></div><div><dt>Fechas</dt><dd>15 nov 2026</dd></div><div><dt>Moneda</dt><dd>Euro · 120,50 €</dd></div><div><dt>Distancia</dt><dd>Kilómetros · 84.500 km</dd></div></dl><p class="field-help">Estas preferencias se guardan en este dispositivo. Los vehículos y mantenimientos se guardan en MongoDB.</p></aside>
+      </div>
+    </main>
     <div id="site-footer"></div>
     <noscript><p class="container message message-error">Activa JavaScript para mostrar la navegación.</p></noscript>
   </body>

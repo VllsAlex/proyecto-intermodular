@@ -10,7 +10,28 @@
   <body data-page="vehiculos">
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <div id="site-header"></div>
-    <main id="contenido" class="container page-shell" aria-label="Vehículos" tabindex="-1"></main>
+    <main id="contenido" class="container page" tabindex="-1">
+      <header class="page-heading"><div><p class="eyebrow">TU GARAJE, ORGANIZADO</p><h1>Mis vehículos</h1><p class="page-description">Cada coche y cada moto, con su cuidado al día.</p></div><button id="add-vehicle" class="button button-primary" type="button" disabled><span data-icon="plus"></span>Añadir vehículo</button></header>
+      <p id="page-message" class="message" role="status" hidden></p>
+      <section id="vehicle-editor" class="panel" aria-labelledby="editor-title" hidden>
+        <div class="panel-heading"><div><h2 id="editor-title">Añadir vehículo</h2><p class="section-description">Los datos que identificarán tu vehículo en el historial.</p></div><span class="metadata">Todos los campos son obligatorios</span></div>
+        <form id="vehicle-form" class="form-body" novalidate>
+          <p id="form-message" class="message" role="alert" hidden></p>
+          <fieldset class="form-grid" id="vehicle-fields"><legend class="visually-hidden">Datos del vehículo</legend>
+            <div class="field"><label for="vehicle-name">Nombre del vehículo</label><input id="vehicle-name" name="name" required maxlength="120" placeholder="Ej. SEAT León" aria-describedby="name-help name-error"><p id="name-help" class="field-help">Marca, modelo o un nombre que reconozcas.</p><p id="name-error" class="field-error" data-error-for="name" hidden></p></div>
+            <div class="field"><label for="vehicle-type">Tipo de vehículo</label><input id="vehicle-type" name="type" list="vehicle-types" required maxlength="40" placeholder="Ej. Coche" aria-describedby="type-help type-error"><datalist id="vehicle-types"><option value="Coche"></option><option value="Moto"></option><option value="Furgoneta"></option><option value="Otro"></option></datalist><p id="type-help" class="field-help">Selecciona una sugerencia o escribe el tipo.</p><p id="type-error" class="field-error" data-error-for="type" hidden></p></div>
+            <div class="field"><label for="vehicle-plate">Matrícula</label><input id="vehicle-plate" class="plate-input" name="plate" required maxlength="20" placeholder="Ej. 1234 KLM" aria-describedby="plate-help plate-error"><p id="plate-help" class="field-help">Se guardará en mayúsculas y sin espacios.</p><p id="plate-error" class="field-error" data-error-for="plate" hidden></p></div>
+          </fieldset>
+          <div class="form-actions"><button id="cancel-vehicle" class="button button-secondary" type="button">Cancelar</button><button id="save-vehicle" class="button button-primary" type="submit">Guardar vehículo</button></div>
+        </form>
+      </section>
+      <section aria-labelledby="vehicles-title">
+        <div class="section-heading"><h2 id="vehicles-title">Tu garaje</h2><span id="vehicles-count" class="metadata" aria-live="polite">Cargando vehículos…</span></div>
+        <div id="vehicles-empty" class="panel empty-state" hidden><span class="empty-icon" data-icon="car"></span><h3>Tu garaje empieza aquí</h3><p>Añade un vehículo para registrar sus revisiones y consultar sus gastos.</p><button class="button button-secondary" id="add-first-vehicle" type="button"><span data-icon="plus"></span>Añadir mi primer vehículo</button></div>
+        <div id="vehicle-grid" class="vehicle-grid" aria-busy="true"></div>
+      </section>
+      <p class="home-note"><span data-icon="shield"></span>El historial de cada vehículo, siempre a mano.</p>
+    </main>
     <div id="site-footer"></div>
     <noscript><p class="container message message-error">Activa JavaScript para mostrar la navegación.</p></noscript>
   </body>

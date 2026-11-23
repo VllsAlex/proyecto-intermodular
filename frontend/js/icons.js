@@ -10,6 +10,12 @@ const paths = {
   trash: '<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>',
   calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18"/>',
   check: '<path d="m5 12 4 4L19 6"/>',
+  search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
+  back: '<path d="M19 12H5m5-5-5 5 5 5"/>',
+  chart: '<path d="M4 3v18h17M8 16v-5m5 5V7m5 9v-8"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.01"/>',
+  settings: '<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="currentColor"/><circle cx="15" cy="17" r="3" fill="currentColor"/>',
+  bike: '<circle cx="5" cy="17" r="4"/><circle cx="19" cy="17" r="4"/><path d="m5 17 5-9 5 9H5m5-9h6l3 9M8 5h4m3-3h3l2 4"/>',
 };
 
 export function icon(name) {

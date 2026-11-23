@@ -10,7 +10,29 @@
   <body data-page="historial">
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <div id="site-header"></div>
-    <main id="contenido" class="container page-shell" aria-label="Historial" tabindex="-1"></main>
+    <main id="contenido" class="container page" tabindex="-1">
+      <header class="page-heading"><div><p class="eyebrow">CADA REVISIÓN CUENTA</p><h1>Historial de mantenimiento</h1><p class="page-description">Consulta qué hiciste, cuándo y cuánto costó.</p></div><a class="button button-primary" href="/anadir-mantenimiento.html"><span data-icon="plus"></span>Añadir mantenimiento</a></header>
+      <p id="page-message" class="message" role="status" hidden></p>
+      <section class="panel" aria-labelledby="filters-title">
+        <div class="panel-heading"><h2 id="filters-title">Encuentra un mantenimiento</h2><span class="section-note">Filtra tu historial</span></div>
+        <form id="history-filters" class="filter-body">
+          <div class="filter-grid">
+            <div class="field"><label for="filter-search">Buscar operación</label><input id="filter-search" name="search" type="search" maxlength="200" placeholder="Ej. aceite, neumáticos…"></div>
+            <div class="field"><label for="filter-vehicle">Vehículo</label><select id="filter-vehicle" name="vehicle"><option value="">Todos los vehículos</option></select></div>
+            <div class="field"><label for="filter-from">Desde</label><input id="filter-from" name="from" type="date"></div>
+            <div class="field"><label for="filter-to">Hasta</label><input id="filter-to" name="to" type="date"></div>
+          </div>
+          <div class="filter-footer"><div class="field sort-field"><label for="filter-sort">Ordenar por</label><select id="filter-sort" name="sort"><option value="recent">Más recientes primero</option><option value="oldest">Más antiguos primero</option><option value="cost-desc">Mayor coste primero</option><option value="cost-asc">Menor coste primero</option></select></div><div class="button-group"><button class="button button-secondary" id="clear-filters" type="button">Limpiar filtros</button><button class="button button-primary" type="submit"><span data-icon="search"></span>Buscar</button></div></div>
+        </form>
+      </section>
+      <section id="history-panel" class="panel" aria-labelledby="history-title" aria-busy="true">
+        <div class="panel-heading"><h2 id="history-title">Mantenimientos</h2><span id="result-count" class="metadata" aria-live="polite">Cargando registros…</span></div>
+        <div id="history-empty" class="empty-state" hidden><span class="empty-icon" data-icon="history"></span><h3>No hay mantenimientos</h3><p id="history-empty-text">Añade tu primer registro para empezar a construir tu historial.</p><a class="button button-secondary" href="/anadir-mantenimiento.html">Añadir mantenimiento</a></div>
+        <div id="history-list" hidden></div>
+        <div id="history-summary" class="table-summary" hidden><span id="results-range"></span><span>Total de los resultados: <strong id="results-cost"></strong></span></div>
+        <nav id="pagination" class="pagination" aria-label="Páginas del historial" hidden><button id="previous-page" class="button button-secondary" type="button">Anterior</button><span id="page-number" class="metadata" aria-live="polite"></span><button id="next-page" class="button button-secondary" type="button">Siguiente</button></nav>
+      </section>
+    </main>
     <div id="site-footer"></div>
     <noscript><p class="container message message-error">Activa JavaScript para mostrar la navegación.</p></noscript>
   </body>

@@ -10,7 +10,25 @@
   <body data-page="anadir-mantenimiento">
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <div id="site-header"></div>
-    <main id="contenido" class="container page-shell" aria-label="Añadir mantenimiento" tabindex="-1"></main>
+    <main id="contenido" class="container page" tabindex="-1">
+      <header class="page-heading"><div><p class="eyebrow">UN REGISTRO HOY, TRANQUILIDAD MAÑANA</p><h1 id="maintenance-title">Añadir mantenimiento</h1><p class="page-description" id="maintenance-description">Guarda los detalles de la última puesta a punto.</p></div><a class="text-link" href="/historial.html"><span data-icon="back"></span>Volver al historial</a></header>
+      <p id="page-message" class="message" role="status" hidden></p>
+      <div class="form-layout">
+        <section class="panel" aria-labelledby="data-title"><div class="panel-heading"><h2 id="data-title">Datos del mantenimiento</h2><span class="metadata">Todos los campos son obligatorios</span></div>
+          <form id="maintenance-form" class="form-body" novalidate>
+            <fieldset id="maintenance-fields" class="form-grid" disabled><legend class="visually-hidden">Datos del mantenimiento</legend>
+              <div class="field field-full"><label for="maintenance-vehicle">Vehículo</label><select id="maintenance-vehicle" name="vehicle" required aria-describedby="vehicle-help vehicle-error"><option value="">Selecciona un vehículo</option></select><p id="vehicle-help" class="field-help">Selecciona un vehículo del listado. <a href="/vehiculos.html?new=1">Añadir un vehículo</a></p><p id="vehicle-error" class="field-error" data-error-for="vehicle" hidden></p></div>
+              <div class="field field-full"><label for="maintenance-operation">Operación realizada</label><input id="maintenance-operation" name="operation" required maxlength="200" placeholder="Ej. Cambio de aceite y filtro" aria-describedby="operation-help operation-error"><p id="operation-help" class="field-help">Describe brevemente el trabajo realizado.</p><p id="operation-error" class="field-error" data-error-for="operation" hidden></p></div>
+              <div class="field"><label for="maintenance-date">Fecha</label><input id="maintenance-date" name="date" type="date" required aria-describedby="date-help date-error"><p id="date-help" class="field-help">El día en que se realizó el mantenimiento.</p><p id="date-error" class="field-error" data-error-for="date" hidden></p></div>
+              <div class="field"><label for="maintenance-mileage">Kilometraje</label><div class="input-unit"><input id="maintenance-mileage" name="mileage" type="number" min="0" max="9007199254740991" step="1" required placeholder="Ej. 84500" aria-describedby="mileage-help mileage-error"><span aria-hidden="true">km</span></div><p id="mileage-help" class="field-help">Valor obligatorio, entero e igual o mayor que 0.</p><p id="mileage-error" class="field-error" data-error-for="mileage" hidden></p></div>
+              <div class="field"><label for="maintenance-cost">Coste total</label><div class="input-unit"><input id="maintenance-cost" name="costInCents" type="text" inputmode="decimal" required placeholder="Ej. 120,50" aria-describedby="cost-help cost-error"><span aria-hidden="true">€</span></div><p id="cost-help" class="field-help">Incluye los impuestos. Se admite un coste de 0 €.</p><p id="cost-error" class="field-error" data-error-for="costInCents" hidden></p></div>
+            </fieldset>
+            <div class="form-actions"><a class="button button-secondary" id="cancel-maintenance" href="/historial.html">Cancelar</a><button id="save-maintenance" class="button button-primary" type="submit" disabled><span data-icon="check"></span>Guardar mantenimiento</button></div>
+          </form>
+        </section>
+        <aside class="panel form-aside"><span class="empty-icon" data-icon="tool"></span><h2>Los detalles marcan la diferencia</h2><p>Un historial completo te ayuda a conocer mejor tu vehículo y a planificar su cuidado.</p><ul class="tips-list"><li>Utiliza la fecha real del trabajo.</li><li>Anota los kilómetros del vehículo en ese momento.</li><li>Incluye el importe total de la factura.</li></ul><div class="aside-note"><span data-icon="shield"></span><p>Tus registros se guardan en la base de datos de AutoRegistro.</p></div></aside>
+      </div>
+    </main>
     <div id="site-footer"></div>
     <noscript><p class="container message message-error">Activa JavaScript para mostrar la navegación.</p></noscript>
   </body>
